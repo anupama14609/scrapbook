@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}
+ScrapBook
+{% endblock title %}
+
+{% block content%}
+<div class="container my-4 bg-dark p-4 text-white">
+<form id="scrapfriend">
+    <div class="row">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="forg-group col-4">
+            <label for="" class="col-12">{{field.label}}</label>
+            {{field}} 
+        </div>
+        {% endfor %} 
+        <input type="submit" class="btn btn-primary" value="Create Scrap Friend"/>
+    </div>
+</form>
+</div>
+<hr>
+
+<div class="container my-4 bg-dark p-4 ">
+    <table class="table text-white" id="scrap_table">
+        <thead>
+          <tr>
+            <th scope="col">Nickname</th>
+            <th scope="col">First</th>
+            <th scope="col">Last</th>
+            <th scope="col">Likes</th>
+            <th scope="col">DOB</th>
+            <th scope="col">Living</th>       
+          </tr>
+        </thead>
+        <tbody>
+            
+          {% for friend in friends %}
+          <tr>
+            <td>{{friend.nickname}}</td>
+            <td>{{friend.firstname}}</td>
+            <td>{{friend.lastname}}</td>
+            <td>{{friend.likes}}</td>
+            <td>{{friend.dob | date:"Y-m-d"}}</td>
+            <td>{{friend.living}}</td> 
+           
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+<script>
+
+    $("#scrapfriend").submit(function (e) {
+        // preventing from page reload and default actions
+        e.preventDefault();
+        // serialize the data for sending the form data.
+        var serializedData = $(this).serialize();
+        // make POST ajax call
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'scrapfriend_view' %}",
+            data: serializedData,
+            success: function (response) {
+                // on successfull creating object
+                // 1. clear the form.
+                $("#scrapfriend").trigger('reset');
+                // 2. focus to nickname input 
+                $("#id_nickname").focus();
+
+                // display the newly friend to table.
+                var instance = JSON.parse(response["instance"]);
+                var fields = instance[0]["fields"];
+                $("#scrap_table tbody").prepend(
+                    `<tr>
+                    <td>${fields["nickname"]||""}</td>
+                    <td>${fields["firstname"]||""}</td>
+                    <td>${fields["lastname"]||""}</td>
+                    <td>${fields["likes"]||""}</td>
+                    <td>${fields["dob"]||""}</td>
+                    <td>${fields["living"]||""}</td>
+                    </tr>`
+                )
+            },
+            error: function (response) {
+                // alert the error if any error occured
+                alert(response["responseJSON"]["error"]);
+            }
+        })
+    })
+</script>
+{% endblock javascript %}
+
+
+
+
+
