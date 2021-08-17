@@ -65,8 +65,6 @@ def update_record(request, id):
 path('delete-record/<int:id>', delete_record, name="delete-record"),
 path('update-record/<int:id>', update_record, name='update-record'),
 
-
-
 +++++++++++++++Ajax Django+++++++++++++++++++++++++++++++++
 
 {% extends 'base.html' %}
